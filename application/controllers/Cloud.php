@@ -35,7 +35,9 @@ class Cloud extends CI_Controller {
 			'folders' => $folders,
 			'files' => $files
 		);
+		$this->load->view('cloud/header');
 		$this->load->view('cloud/folder', $data);
+		$this->load->view('cloud/footer');
 	}
 
 	public function upload()

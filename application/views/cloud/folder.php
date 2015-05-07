@@ -1,10 +1,3 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed'); ?>
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Cloud Hosting</title>
-</head>
-<body>
 	<p><?= anchor('auth/logout', 'Log Out'); ?></p>
 	<ol class="breadcrumb">
 		<li>
@@ -63,5 +56,3 @@ if(!empty($files)) foreach($files as $file){ ?>
 ?>
 		</tbody>
 	</table>
-</body>
-</html>
