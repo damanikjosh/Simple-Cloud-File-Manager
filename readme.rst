@@ -3,7 +3,7 @@ Simple Cloud File Manager
 ###################
 
 Tugas besar calon kru ARC ITB divisi Web.
-Simple Cloud File Manager ini menggunakan PHP framework [Codeigniter](www.codeigniter.com).
+Simple Cloud File Manager ini menggunakan PHP framework [Codeigniter](www.codeigniter.com) .
 
 *******************
 Petunjuk Instalasi
@@ -14,6 +14,7 @@ Petunjuk Instalasi
 3. Buat tabel "users" dan "ci_sessions"
 
 Script untuk tabel "users"
+
 '''
 CREATE TABLE `users` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -34,7 +35,7 @@ Apache 2 atau Nginx
 PHP 5.6
 MySQL
 PHP 5.6 Extensions:
--  php56-ctype
--  php56-session
--  php56-filter
+- php56-ctype
+- php56-session
+- php56-filter
 
