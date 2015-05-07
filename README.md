@@ -11,27 +11,27 @@ Simple Cloud File Manager ini menggunakan PHP framework [Codeigniter](http://www
 
 SQL script untuk tabel `users`:
 
-        CREATE TABLE 'users' (
-          'id' INT NOT NULL AUTO_INCREMENT,
-          'email_address' VARCHAR(50) NOT NULL,
-          'password' VARCHAR(128) NOT NULL,
-          'first_name' VARCHAR(40) NOT NULL,
-          'last_name' VARCHAR(45) NOT NULL,
-          'created' TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          'is_admin' INT(1) NOT NULL DEFAULT 0,
-          PRIMARY KEY ('id')
-        );
+    CREATE TABLE IF NOT EXISTS 'users' (
+      'id' INT NOT NULL AUTO_INCREMENT,
+      'email_address' VARCHAR(50) NOT NULL,
+      'password' VARCHAR(128) NOT NULL,
+      'first_name' VARCHAR(40) NOT NULL,
+      'last_name' VARCHAR(45) NOT NULL,
+      'created' TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      'is_admin' INT(1) NOT NULL DEFAULT 0,
+      PRIMARY KEY ('id')
+    );
 
 SQL script untuk tabel `ci_sessions`:
 
-        CREATE TABLE IF NOT EXISTS 'ci_sessions' (
-          'id' varchar(40) NOT NULL,
-          'ip_address' varchar(45) NOT NULL,
-          'timestamp' int(10) unsigned DEFAULT 0 NOT NULL,
-          'data' blob NOT NULL,
-          PRIMARY KEY (id),
-          KEY 'ci_sessions_timestamp' ('timestamp')
-        );
+    CREATE TABLE IF NOT EXISTS 'ci_sessions' (
+      'id' varchar(40) NOT NULL,
+      'ip_address' varchar(45) NOT NULL,
+      'timestamp' int(10) unsigned DEFAULT 0 NOT NULL,
+      'data' blob NOT NULL,
+      PRIMARY KEY (id),
+      KEY 'ci_sessions_timestamp' ('timestamp')
+    );
 
 ## Server Requirements
 
@@ -45,17 +45,17 @@ SQL script untuk tabel `ci_sessions`:
 
 ## To Do List
 
-- [ ] USER FEATURES
+- [ ] **USER FEATURES**
   - [ ] Upload
   - [ ] All extensions
   - [ ] Sort by
   - [ ] Personalize
-- [ ] ADMIN FEATURES
+- [ ] **ADMIN FEATURES**
   - [ ] Upload
   - [ ] User management
   - [ ] Configure
   - [ ] Logs
-- [ ] BONUS
+- [ ] **BONUS**
   - [ ] Edit on the spot
   - [ ] File viewer
   - [ ] File sharing
