@@ -48,7 +48,7 @@ SQL script untuk tabel `ci_sessions`:
 - [ ] **USER FEATURES**
   - [ ] Upload
   - [ ] All extensions
-  - [ ] Sort by
+  - [X] Sort by
   - [ ] Personalize
 - [ ] **ADMIN FEATURES**
   - [ ] Upload
