@@ -8,10 +8,10 @@
 $path_segments = array_filter(explode('/', $path));
 $segment_url = '';
 foreach($path_segments as $segment) { 
-	$segment_url = $segment_url . '/' . $segment;
+	$segment_url .= $segment . '/';
 ?>
 			<li>
-				<?= anchor('cloud/folder?path=' . urlencode($segment_url), $segment); ?>
+				<?= anchor('cloud/folder/' . urlencode($segment_url), $segment); ?>
 			</li>
 <?php }
 // <<<----------------------------------------------
@@ -19,7 +19,7 @@ foreach($path_segments as $segment) {
 		</ol>
 		<table class="table table-hover">
 			<thead>
-				<tr>
+				<tr class="folder-header">
 					<th colspan="2"><a href="<?php if($sort=='name'&&$asc==SORT_ASC) echo '?sort=name&asc=0'; else echo '?sort=name&asc=1' ?>">Name</a>
 					<?php if($sort=='name') { ?>
 						<span class="glyphicon glyphicon-chevron-<?php if($asc==SORT_ASC) echo 'up'; else echo 'down' ?>"></span>
@@ -49,10 +49,10 @@ foreach($path_segments as $segment) {
 if(!empty($folders)) foreach($folders as $folder){ ?>
 				<tr class="folder-content">
 					<td><span class="glyphicon glyphicon-folder-open"></span></td>
-					<td><?= anchor('cloud/folder?path=' . urlencode('/' . $folder['name']), $folder['name']) ?> </td>
+					<td><?= anchor('cloud/folder/' . $path . urlencode($folder['name']), $folder['name']) ?> </td>
 					<td>Folder</td>
 					<td><?= $folder['size'] ?></td>
-					<td><?= $folder['modified'] ?></td>
+					<td><abbr title="<?= date('j F Y, g:i:a', $folder['date']) ?>"><?= $folder['modified'] ?></abbr></td>
 				</tr>
 <?php }
 // <<<----------------------------------------------
@@ -68,13 +68,13 @@ if(!empty($files)) foreach($files as $file){ ?>
 								case 'Audio': echo 'music"></span></td><td>' . $file['name'] . '</td><td>Audio</td>';break;
 								case 'Application': echo 'tasks"></span></td><td>' . $file['name'] . '</td><td>Application</td>';break;
 								case 'Compressed': echo 'compressed"></span></td><td>' . $file['name'] . '</td><td>Compressed</td>';break;
-								case 'Document': echo 'briefcase"></span></td><td>' . $file['name'] . '</td><td>Document</td>';break;
-								default: echo 'file"></span></td><td>' . $file['name'] . '</td><td>Other</td>';
+								case 'Document': echo 'file"></span></td><td>' . $file['name'] . '</td><td>Document</td>';break;
+								default: echo 'briefcase"></span></td><td>' . $file['name'] . '</td><td>Other</td>';
 							}
 						?>
 					
 					<td><?= $file['size'] ?></td>
-					<td><?= $file['modified'] ?></td>
+					<td><abbr title="<?= date('j F Y, g:i:a', $file['date']) ?>"><?= $file['modified'] ?></abbr></td>
 				</tr>
 <?php }
 // <<<----------------------------------------------
@@ -82,3 +82,7 @@ if(!empty($files)) foreach($files as $file){ ?>
 			</tbody>
 		</table>
 	</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready()
+</script>
