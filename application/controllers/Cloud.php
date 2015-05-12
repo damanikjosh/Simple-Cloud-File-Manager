@@ -27,6 +27,23 @@ class Cloud extends CI_Controller {
 		return $data;
 	}
 
+	private function _encode() {
+
+	}
+
+	/*
+	private function _breadcrumbs($path) {
+		$path_segments = array_filter(explode('/', $path));
+		$segment_url = '';
+		$breadcrumbs = array();
+		foreach($path_segments as $segment) { 
+			$segment_url .= $segment . '/';
+			array_push($breadcrumbs, $segment_url);
+		}
+		return $breadcrumbs;
+	}
+	*/
+
 	public function index()
 	{
 		redirect('cloud/folder');
@@ -38,7 +55,10 @@ class Cloud extends CI_Controller {
 		$user_id = $this->session->userdata('user_id');
 
 		// Mendapatkan path relatif folder dari parameter get
-		$path = urldecode($this->input->get('path'));
+		$path = '';
+		for($i=3; $this->uri->segment($i) !== NULL; $i++) {
+			$path .= urldecode($this->uri->segment($i)) . '/';
+		}
 		$sort = $this->input->get('sort');
 		$asc = $this->input->get('asc');
 
@@ -46,6 +66,8 @@ class Cloud extends CI_Controller {
 		$this->load->model('Cloud_model');
 		$folders = $this->Cloud_model->get_folders($user_id, $path);
 		$files = $this->Cloud_model->get_files($user_id, $path);
+
+		if($folders == NOT_EXIST) redirect('erros/error_404');
 
 		// Menampilkan view
 		if($sort!==NULL){
@@ -57,14 +79,16 @@ class Cloud extends CI_Controller {
 		}
 		$folders = $this->_sortfile($folders, $sort, $asc);
 		$files = $this->_sortfile($files, $sort, $asc);
+		// $breadcrumbs = $this->_breadcrumbs($path);
 		$data = array(
 			'path' => $path,
 			'folders' => $folders,
 			'files' => $files,
+			// 'breadcrumbs' => $breadcrumbs,
 			'sort' => $sort,
 			'asc' => $asc
 		);
-		$this->load->view('cloud/header');
+		$this->load->view('cloud/header', array('path'=>$path));
 		$this->load->view('cloud/folder', $data);
 		$this->load->view('cloud/footer');
 	}

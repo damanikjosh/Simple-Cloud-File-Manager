@@ -23,6 +23,8 @@ class Auth extends CI_Controller {
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('email_address', 'Email Address','required|valid_email');
 		$this->form_validation->set_rules('password', 'Password', 'required');
+		$this->form_validation->set_message('required', 'Required');
+		$this->form_validation->set_message('valid_email', 'Not a Valid Email');
 
 		// Jika validasi berhasil
 		if($this->form_validation->run())
@@ -37,7 +39,9 @@ class Auth extends CI_Controller {
 			if(!$user)
 			{
 				$data['error'] = 'Wrong email address or password.';
+				$this->load->view('auth/header', array('title'=>'Log In | SimpleCloud'));
 				$this->load->view('auth/login', $data);
+				$this->load->view('auth/footer');
 			}
 
 			// Jika berhasil
@@ -58,7 +62,9 @@ class Auth extends CI_Controller {
 		// Jika validasi gagal
 		else
 		{
+			$this->load->view('auth/header', array('title'=>'Log In | SimpleCloud'));
 			$this->load->view('auth/login');
+			$this->load->view('auth/footer');
 		}
 	}
 

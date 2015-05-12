@@ -7,11 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
 	<link rel="stylesheet" href="/assets/css/cloud.css">
-	<title>My Cloud</title>
+	<title>SimpleCloud</title>
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
-	<!-- Brand and toggle get grouped for better mobile display -->
 	<div class="container-fluid">
 	<div class="navbar-header">
 		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
@@ -20,10 +19,8 @@
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 		</button>
-		<?= anchor('cloud', '<span class="glyphicon glyphicon-cloud"></span> My Cloud', array('class'=>'navbar-brand')) ?>
+		<?= anchor('cloud', '<span class="glyphicon glyphicon-cloud"></span> <b>Simple</b>Cloud', array('class'=>'navbar-brand')) ?>
 	</div>
-
-	<!-- Collect the nav links, forms, and other content for toggling -->
 	<div class="collapse navbar-collapse navbar-ex1-collapse">
 		<ul class="nav navbar-nav navbar-right">
 			<p class="navbar-text"><?= $this->session->userdata('email') ?></p>
@@ -35,6 +32,6 @@
 				</ul>
 			</li>
 		</ul>
-	</div><!-- /.navbar-collapse -->
+	</div>
 	</div>
 </nav>

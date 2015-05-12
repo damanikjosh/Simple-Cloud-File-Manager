@@ -10,7 +10,6 @@
 }
 .navbar-inverse .navbar-brand {
   color: #fff;
-  font-weight: bold;
 }
 .navbar-inverse .navbar-text {
   color: #ddd;
@@ -44,16 +43,22 @@
 	font-size: 30px;
 	float: left;
 	margin-right: 10px;
-	top: -2px;
+	top: -3px;
 }
 
 .breadcrumb li a { color: #37474f;}
+.folder-content:focus {
+	background: #000;
+}
 .folder-content td {
-	height: 30px;
-	vertical-align: middle;
+	height: 50px;
+	vertical-align: middle !important;
 }
 .folder-content td:first-child {
 	width: 40px;
+}
+.folder-content td:nth-child(2) {
+	min-width: 150px;
 }
 .folder-content .glyphicon {
 	font-size: 20px;
@@ -65,5 +70,15 @@
 	width: 100px;
 }
 .column-date {
-	width: 200px;
+	width: 150px;
+}
+.folder-header th {
+	color: #37474f;
+	font-size: 17px;
+}
+.folder-header a {
+	color: #37474f;
+}
+.folder-header .glyphicon {
+	font-size: 10px;
 }

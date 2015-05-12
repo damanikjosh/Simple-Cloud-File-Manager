@@ -20,6 +20,9 @@ class Welcome extends CI_Controller {
 	 */
 	public function index()
 	{
-		$this->load->view('welcome_message');
+		if($this->session->userdata('user_id') !== NULL) redirect('cloud');
+		$this->load->view('auth/header', array('title'=>'SimpleCloud | Tugas Besar Grup 1 WEB ARC'));
+		$this->load->view('welcome');
+		$this->load->view('auth/footer');
 	}
 }

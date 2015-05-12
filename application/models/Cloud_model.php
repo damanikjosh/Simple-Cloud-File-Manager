@@ -56,7 +56,7 @@ class Cloud_model extends CI_Model {
 			//Compressed
 			'tar'=>6,'zip'=>6,'gz'=>6,'gzip'=>6,'rar'=>6,'7z'=>6,
 			//Miscapplicationformats
-			'pdf'=>7,'swf'=>7,'class'=>7,'doc'=>7,'pot'=>7,'pps'=>7,'ppt'=>7,'wri'=>7,'xla'=>7,'xls'=>7,'xlt'=>7,'xlw'=>7,'mdb'=>7,'mpp'=>7,'docx'=>7,'docm'=>7,'dotx'=>7,'dotm'=>7,'xlsx'=>7,'xlsm'=>7,'xlsb'=>7,'xltx'=>7,'xltm'=>7,'xlam'=>7,'pptx'=>7,'pptm'=>7,'ppsx'=>7,'ppsm'=>7,'potx'=>7,'potm'=>7,'ppam'=>7,'sldx'=>7,'sldm'=>7,'onetoc'=>7,'onetoc2'=>7,'onetmp'=>7,'onepkg'=>7,'odt'=>7,'odp'=>7,'ods'=>7,'odg'=>7,'odc'=>7,'odb'=>7,'odf'=>7,'wp'=>7,'wpd'=>7,'key'=>7,'numbers'=>7,'pages'=>7
+			'pdf'=>7,'dot'=>7,'swf'=>7,'class'=>7,'doc'=>7,'pot'=>7,'pps'=>7,'ppt'=>7,'wri'=>7,'xla'=>7,'xls'=>7,'xlt'=>7,'xlw'=>7,'mdb'=>7,'mpp'=>7,'docx'=>7,'docm'=>7,'dotx'=>7,'dotm'=>7,'xlsx'=>7,'xlsm'=>7,'xlsb'=>7,'xltx'=>7,'xltm'=>7,'xlam'=>7,'pptx'=>7,'pptm'=>7,'ppsx'=>7,'ppsm'=>7,'potx'=>7,'potm'=>7,'ppam'=>7,'sldx'=>7,'sldm'=>7,'onetoc'=>7,'onetoc2'=>7,'onetmp'=>7,'onepkg'=>7,'odt'=>7,'odp'=>7,'ods'=>7,'odg'=>7,'odc'=>7,'odb'=>7,'odf'=>7,'wp'=>7,'wpd'=>7,'key'=>7,'numbers'=>7,'pages'=>7
 		);
 		$type = array('','Image','Video','Text','Audio','Application','Compressed','Document');
 		if(isset($extensions[$extension])) return $type[$extensions[$extension]];
@@ -67,6 +67,7 @@ class Cloud_model extends CI_Model {
 	{
 		// Menentukan directory yang akan discan
 		$directory = '../cloud/' . $owner_id . '/' . $path;
+		if(!is_dir($directory)) return NOT_EXIST;
 
 		// Men-scan file dan folder yang ada di directory
 		$contents = get_dir_file_info($directory);
@@ -84,7 +85,7 @@ class Cloud_model extends CI_Model {
 			}
 			return $folders;
 		}
-		return false;
+		return NULL;
 	}
 
 	public function get_files($owner_id, $path)
@@ -92,6 +93,7 @@ class Cloud_model extends CI_Model {
 
 		// Menentukan directory yang akan discan
 		$directory = '../cloud/' . $owner_id . '/' . $path;
+		if(!is_dir($directory)) return NOT_EXIST;
 
 		// Men-scan file dan folder yang ada di directory
 		$contents = get_dir_file_info($directory);
@@ -115,6 +117,6 @@ class Cloud_model extends CI_Model {
 			}
 			return $files;
 		}
-		return false;
+		return NULL;
 	}
 }
