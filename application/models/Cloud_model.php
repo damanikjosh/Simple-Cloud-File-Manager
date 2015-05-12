@@ -40,6 +40,14 @@ class Cloud_model extends CI_Model {
 		return $modified;
 	}
 
+	private function _size($int_size) {
+		if($int_size < 1000) $size = sprintf('%0.2f', $int_size) . ' B';
+		else if($int_size < 1000000) $size = sprintf('%0.2f', $int_size/1000) . ' KB';
+		else if($int_size < 1000000000) $size = sprintf('%0.2f', $int_size/1000000) . ' MB';
+		else $size = sprintf('%0.2f', $int_size/1000000000) . ' GB';
+		return $size;
+	}
+
 	private function _filetype($path) {
 		$extension = (new SplFileInfo($path))->getExtension();
 		$extensions = array(
@@ -81,6 +89,8 @@ class Cloud_model extends CI_Model {
 			// Memasukkan data contents yang bertipe folder ke array folders
 			foreach($contents as $content){
 				$content['modified'] = $this->_modified($content['date']);
+				$content['int_size'] = $content['size'];
+				$content['size'] = $this->_size($content['size']);
 				if(is_dir($directory . '/' . $content['name'])) array_push($folders, $content);
 			}
 			return $folders;
@@ -111,6 +121,8 @@ class Cloud_model extends CI_Model {
 					// Menambah element file_type ke array
 					$content['file_type'] = $this->_filetype($file_path);
 					$content['modified'] = $this->_modified($content['date']);
+					$content['int_size'] = $content['size'];
+					$content['size'] = $this->_size($content['size']);
 
 					array_push($files, $content);
 				}
