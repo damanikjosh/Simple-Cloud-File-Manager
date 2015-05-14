@@ -9,40 +9,19 @@ class Cloud extends CI_Controller {
 
 		// User harus login untuk mengakses cloud
 		if($this->session->userdata('user_id') == NULL) redirect('auth');
+		$this->load->model('Cloud_model');
 	}
 
-	private function _sortfile($data, $idx, $asc) {
-		if(!isset($data[0][$idx])) return $data;
-		if(is_string($data[0][$idx])) {
-			foreach ($data as $key => $row) {
-			    $sort[$key]  = array_map('strtolower', $row)[$idx]; 
-			}
-		}
-		else {
-			foreach ($data as $key => $row) {
-			    $sort[$key]  = $row[$idx]; 
-			}
-		}
-		array_multisort($sort, $asc, $data);
-		return $data;
-	}
-
-	private function _encode() {
-
-	}
-
-	/*
-	private function _breadcrumbs($path) {
-		$path_segments = array_filter(explode('/', $path));
-		$segment_url = '';
+	private function _breadcrumbs($path_segments) {
+		$url = '';
 		$breadcrumbs = array();
-		foreach($path_segments as $segment) { 
-			$segment_url .= $segment . '/';
-			array_push($breadcrumbs, $segment_url);
+		$real_path_segments = $this->Cloud_model->real_path_segments($path_segments);
+		foreach($path_segments as $key=>$path){
+			$url .= $path . '/';
+			array_push($breadcrumbs, array('title'=> $real_path_segments[$key], 'url'=> site_url('cloud/folder/' . $url)));
 		}
 		return $breadcrumbs;
 	}
-	*/
 
 	public function index()
 	{
@@ -51,51 +30,86 @@ class Cloud extends CI_Controller {
 
 	public function folder()
 	{
-		// Mendapatkan user id dari php session
+		// Olah data dari URL
+		$this->load->helper('form');
 		$user_id = $this->session->userdata('user_id');
+		$url_segments = $this->uri->segments;
+		unset($url_segments[1], $url_segments[2]);
 
-		// Mendapatkan path relatif folder dari parameter get
-		$path = '';
-		for($i=3; $this->uri->segment($i) !== NULL; $i++) {
-			$path .= urldecode($this->uri->segment($i)) . '/';
-		}
-		$sort = $this->input->get('sort');
-		$asc = $this->input->get('asc');
+		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'name';
+		$sort_asc = isset($_GET['asc']) ? $_GET['asc'] : 1;
 
 		// Ambil data dari model
-		$this->load->model('Cloud_model');
-		$folders = $this->Cloud_model->get_folders($user_id, $path);
-		$files = $this->Cloud_model->get_files($user_id, $path);
+		$contents = $this->Cloud_model->get_contents($user_id, $url_segments, $sort, $sort_asc);
 
-		if($folders == NOT_EXIST) redirect('erros/error_404');
-
-		// Menampilkan view
-		if($sort!==NULL){
-			if($asc||$asc==NULL) $asc = SORT_ASC;
-			else $asc = SORT_DESC;
-		}
-		else {
-			$sort = 'name'; $asc = SORT_ASC;
-		}
-		$folders = $this->_sortfile($folders, $sort, $asc);
-		$files = $this->_sortfile($files, $sort, $asc);
-		// $breadcrumbs = $this->_breadcrumbs($path);
 		$data = array(
-			'path' => $path,
-			'folders' => $folders,
-			'files' => $files,
-			// 'breadcrumbs' => $breadcrumbs,
+			'path' => $this->Cloud_model->get_path(1, $url_segments),
+			'real_path' => $contents['real_path'],
+			'folders' => $contents['folders'],
+			'files' => $contents['files'],
+			'breadcrumbs' => $this->_breadcrumbs($url_segments),
 			'sort' => $sort,
-			'asc' => $asc
+			'asc' => $sort_asc
 		);
-		$this->load->view('cloud/header', array('path'=>$path));
+		$this->load->view('cloud/header', array('title'=>'Simple Cloud'));
 		$this->load->view('cloud/folder', $data);
 		$this->load->view('cloud/footer');
 	}
 
 	public function upload()
 	{
-		
+		$this->load->helper(array('form', 'path'));
+		$user_id = $this->session->userdata('user_id');
+		$url_segments = $this->uri->segments;
+		unset($url_segments[1], $url_segments[2]);
+
+		$config['upload_path']		= set_realpath($_SERVER['DOCUMENT_ROOT'] . '/../cloud/' . $user_id . $this->Cloud_model->get_path(0, $url_segments));
+		$config['allowed_types']	= '*';
+		$config['overwrite']		= TRUE;
+		$config['max_size']			= 3000;
+		$config['remove_spaces']	= FALSE;
+
+		$error = '';
+
+		if(isset($_FILES['userfile'])){
+			if($this->input->post('filename') !== '') $config['file_name'] = $this->input->post('filename');
+			$this->load->library('upload', $config);
+
+			$file_data = $this->upload->data();
+			$upload_success = $this->upload->do_upload();
+			if ($upload_success)
+			{
+				$file_data = $this->upload->data();
+				redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments).'?upload_success=1&upload_name='.$file_data['file_name']);
+			}
+			else
+			{
+				$error = 'File upload cancelled';
+			}
+		}
+		$data_header = array(
+			'title'=>'Simple Cloud | Upload',
+			'error'=>$error
+		);
+		$data = array(
+			'path'=>$this->Cloud_model->get_path(1, $url_segments),
+			'max_size'=>$config['max_size'],
+			'breadcrumbs' => $this->_breadcrumbs($url_segments)
+		);
+		$this->load->view('cloud/header', $data_header);
+		$this->load->view('cloud/upload', $data);
+		$this->load->view('cloud/footer');
+	}
+
+	public function new_folder()
+	{
+		$user_id = $this->session->userdata('user_id');
+		$url_segments = $this->uri->segments;
+		$folder_name = $this->input->post('foldername');
+		unset($url_segments[1], $url_segments[2]);
+
+		if($this->Cloud_model->create_folder($user_id, $url_segments, $folder_name))
+			redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments).'?create_success=1&create_name='.$folder_name);;
 	}
 
 }

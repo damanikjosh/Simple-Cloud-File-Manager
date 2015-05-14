@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
 	<link rel="stylesheet" href="/assets/css/cloud.css">
 	<title>SimpleCloud</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
@@ -35,3 +36,29 @@
 	</div>
 	</div>
 </nav>
+<div id="alert">
+	<?php if(isset($error)&&$error!==''): ?>
+	<div class="alert alert-danger alert-fixed-top alert-dismissable" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<span><b>Error</b></span><span> <?= $error?></span>
+	</div>
+	<?php endif ?>
+	<?php if(isset($_GET['error'])): ?>
+	<div class="alert alert-danger alert-fixed-top alert-dismissable" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<span><b>Error</b></span><span> <?= $this->input->get('error') ?></span>
+	</div>
+	<?php endif ?>
+	<?php if($this->input->get('upload_success')): ?>
+	<div class="alert alert-success alert-fixed-top alert-dismissable" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<span><b>Success</b></span><span> File <?= $this->input->get('upload_name') ?> uploaded</span>
+	</div>
+	<?php endif ?>
+	<?php if($this->input->get('create_success')): ?>
+	<div class="alert alert-success alert-fixed-top alert-dismissable" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<span><b>Success</b></span><span> <?= $this->input->get('create_name') ?> created</span>
+	</div>
+	<?php endif ?>
+</div>

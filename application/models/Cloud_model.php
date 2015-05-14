@@ -11,7 +11,35 @@ class Cloud_model extends CI_Model {
 		$this->load->helper(array('file'));
 	}
 
-	private function _modified($timestamp){
+	private function _encode($str) {
+		$str_encode = rtrim(base64_encode($str), '=');
+		return $str_encode;
+	}
+
+	private function _decode($str) {
+		$str = $str . '==';
+		$str_decode = base64_decode($str);
+		return $str_decode;
+	}
+
+	private function _sort_contents($data, $child, $sort_asc) {
+		if($sort_asc==0) $sort_asc = SORT_DESC;
+		else $sort_asc = SORT_ASC;
+		foreach ($data as $key => $row) {
+			if(is_string($row[$child])) $sort[$key] = array_map('strtolower', $row)[$child];
+			else $sort[$key] = $row[$child];
+		}
+		array_multisort($sort, $sort_asc, $data);
+		return $data;
+	}
+
+	private function _file_size($bytes, $decimals = 2) {
+		$sz = ' kMGTP';
+		$factor = floor((strlen($bytes) - 1) / 3);
+		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . ' ' . @$sz[$factor] . 'B';
+	}
+
+	private function _date_modified($timestamp){
 		$second = time() - $timestamp;
 		$minute = intval($second/60);
 		$hour = intval($second/3600);
@@ -40,16 +68,8 @@ class Cloud_model extends CI_Model {
 		return $modified;
 	}
 
-	private function _size($int_size) {
-		if($int_size < 1000) $size = sprintf('%0.2f', $int_size) . ' B';
-		else if($int_size < 1000000) $size = sprintf('%0.2f', $int_size/1000) . ' KB';
-		else if($int_size < 1000000000) $size = sprintf('%0.2f', $int_size/1000000) . ' MB';
-		else $size = sprintf('%0.2f', $int_size/1000000000) . ' GB';
-		return $size;
-	}
-
-	private function _filetype($path) {
-		$extension = (new SplFileInfo($path))->getExtension();
+	private function _file_type($name) {
+		$extension = substr($name, strrpos($name, '.') + 1);
 		$extensions = array(
 			//Imageformats
 			'jpg'=>1,'jpeg'=>1,'jpe'=>1,'gif'=>1,'png'=>1,'bmp'=>1,'tif'=>1,'tiff'=>1,'ico'=>1,
@@ -71,10 +91,13 @@ class Cloud_model extends CI_Model {
 		else return 'Other';
 	}
 
-	public function get_folders($owner_id, $path)
+	public function get_contents($owner_id, $path_segments, $sort, $sort_asc)
 	{
+		$path = $this->get_path(1, $path_segments);
+		$real_path = $this->get_path(0, $path_segments);
+
 		// Menentukan directory yang akan discan
-		$directory = '../cloud/' . $owner_id . '/' . $path;
+		$directory = FCPATH . '/../cloud/' . $owner_id . $real_path;
 		if(!is_dir($directory)) return NOT_EXIST;
 
 		// Men-scan file dan folder yang ada di directory
@@ -85,50 +108,66 @@ class Cloud_model extends CI_Model {
 
 			// Definisi array kosong
 			$folders = array();
+			$files = array();
+			if($sort !== 'type') $contents = $this->_sort_contents($contents, $sort, $sort_asc);
 
 			// Memasukkan data contents yang bertipe folder ke array folders
 			foreach($contents as $content){
-				$content['modified'] = $this->_modified($content['date']);
-				$content['int_size'] = $content['size'];
-				$content['size'] = $this->_size($content['size']);
-				if(is_dir($directory . '/' . $content['name'])) array_push($folders, $content);
+				$content['size'] = $this->_file_size($content['size']);
+				$content['date'] = $this->_date_modified($content['date']);
+				unset($content['server_path'], $content['relative_path']);
+				if(is_dir($directory . '/' . $content['name'])){
+					$content['url'] = site_url('cloud/folder' . $path . '/' . $this->_encode($content['name']));
+					$content['type'] = 'Folder';
+					array_push($folders, $content);
+				}
+				else if(is_file($directory . '/' . $content['name'])){
+					$content['url'] = site_url('cloud/file' . $path . '/' . $this->_encode($content['name']));
+					$content['type'] = $this->_file_type($content['name']);
+					array_push($files, $content);
+				}
 			}
-			return $folders;
+			$contents = array('files'=>$files, 'folders'=>$folders, 'path'=>$path, 'real_path'=>$real_path);
+			if($sort == 'type'){
+				$contents['folders'] = $this->_sort_contents($contents['folders'], $sort, $sort_asc);
+				$contents['files'] = $this->_sort_contents($contents['files'], $sort, $sort_asc);
+			}
+			return $contents;
 		}
 		return NULL;
 	}
 
-	public function get_files($owner_id, $path)
+	public function real_path_segments($path_segments)
 	{
-
-		// Menentukan directory yang akan discan
-		$directory = '../cloud/' . $owner_id . '/' . $path;
-		if(!is_dir($directory)) return NOT_EXIST;
-
-		// Men-scan file dan folder yang ada di directory
-		$contents = get_dir_file_info($directory);
-
-		// Jika file atau folder ada
-		if(!empty($contents)){
-
-			// Definisi array kosong
-			$files = array();
-
-			// Memasukkan data contents yang bertipe folder ke array folders
-			foreach($contents as $content){
-				if(is_file($file_path = $directory . '/' . $content['name'])){
-
-					// Menambah element file_type ke array
-					$content['file_type'] = $this->_filetype($file_path);
-					$content['modified'] = $this->_modified($content['date']);
-					$content['int_size'] = $content['size'];
-					$content['size'] = $this->_size($content['size']);
-
-					array_push($files, $content);
-				}
-			}
-			return $files;
+		$real_path_segments = array();
+		foreach($path_segments as $key=>$path_segment){
+			$real_path_segments[$key] = $this->_decode($path_segment);
 		}
-		return NULL;
+		return $real_path_segments;
+	}
+
+	public function get_path($encoded, $path_segments)
+	{
+		$path = '';
+		$real_path = '';
+		foreach ($path_segments as $key => $path_segment) {
+			$path = $path . '/' . $path_segment;
+			$real_path = $real_path . '/' . $this->_decode($path_segment);
+		}
+		return ($encoded ? $path : $real_path);
+	}
+
+	public function create_folder($owner_id, $path_segments, $folder_name){
+		$this->load->helper('path');
+		$path = $this->get_path(1, $path_segments);
+		$real_path = $this->get_path(0, $path_segments);
+
+		$directory = set_realpath('../cloud/' . $owner_id . $real_path);
+		if(!is_dir($directory)) return NOT_EXIST;
+		$new_folder = $directory . $folder_name;
+		if(!is_dir($new_folder)){
+			if(mkdir($new_folder, 0755, TRUE)) return true;
+		}
+		return false;
 	}
 }

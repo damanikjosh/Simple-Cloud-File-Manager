@@ -50,27 +50,37 @@
 .folder-content:focus {
 	background: #000;
 }
+.breadcrumb button {
+}
+#table-contents {
+	table-layout:fixed;
+	width:100%;
+}
 .folder-content td {
 	height: 50px;
 	vertical-align: middle !important;
 }
-.folder-content td:first-child {
-	width: 40px;
+.column-icon {
+	width: 35px;
 }
-.folder-content td:nth-child(2) {
+.column-name {
 	min-width: 150px;
+	position: relative;
+	left: -35px;
 }
 .folder-content .glyphicon {
 	font-size: 20px;
 }
-.column-type {
-	width: 150px;
-}
 .column-size {
-	width: 100px;
+	width: 80px;
+	min-width: 80px;
 }
 .column-date {
-	width: 150px;
+	width: 120px;
+	min-width: 120px;
+}
+.content-name {
+	overflow: hidden;
 }
 .folder-header th {
 	color: #37474f;
@@ -81,4 +91,52 @@
 }
 .folder-header .glyphicon {
 	font-size: 10px;
+}
+.alert {
+	padding: 5px 30px 5px 10px;
+}
+.alert-fixed-top {
+	position: fixed;
+	top: 9px;
+	z-index: 9999;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+.file-icon {
+	font-size: 150px;
+	text-align: center;
+}
+#add-folder-form {
+	display: none;
+}
+
+@media screen and (max-width: 768px) {
+	.visible-xs-inline {
+		display: inline-block; !important
+	}
+}
+
+@media screen and (min-width: 768px) {
+	.visible-xs-inline {
+		display: none; !important
+	}
 }
