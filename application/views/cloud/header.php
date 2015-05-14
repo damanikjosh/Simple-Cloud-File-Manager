@@ -24,7 +24,7 @@
 	</div>
 	<div class="collapse navbar-collapse navbar-ex1-collapse">
 		<ul class="nav navbar-nav navbar-right">
-			<p class="navbar-text"><?= $this->session->userdata('email') ?></p>
+			<p class="navbar-text"><?= $this->session->userdata('username') ?></p>
 			<li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> Options <b class="caret"></b></a>
 				<ul class="dropdown-menu">

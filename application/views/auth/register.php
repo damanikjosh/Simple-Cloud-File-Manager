@@ -18,16 +18,8 @@
 	<h1>Register</h1>
 	<?php echo form_open('auth/register'); ?>
 	<p>
-		<?php echo form_label('Email Address:', 'email_address'); ?>
-		<?php echo form_input('email_address', set_value('email_address'), 'id=email_address'); ?>
-	</p>
-	<p>
-		<?php echo form_label('First Name:', 'first_name'); ?>
-		<?php echo form_input('first_name', set_value('first_name'), 'id=first_name'); ?>
-	</p>
-	<p>
-		<?php echo form_label('Last Name:', 'last_name'); ?>
-		<?php echo form_input('last_name', set_value('last_name'), 'id=last_name'); ?>
+		<?php echo form_label('Username:', 'username'); ?>
+		<?php echo form_input('username', set_value('username'), 'id=username'); ?>
 	</p>
 	<p>
 		<?php echo form_label('Password:', 'password'); ?>

@@ -3,30 +3,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Auth_model extends CI_Model {
 
-	private function check_user($email)
+	public function check_user($username)
 	{
 		// Ambil data dari database
 		$q = $this
 				->db
-				->where('email_address', $email)
+				->where('username', $username)
 				->limit(1)
 				->get('users');
 
 		// Jika ditemukan
 		if($q->num_rows() > 0){
-			return true;
+			return $q->row()->id;
 		}
 
 		// Jika tidak ditemukan
 		return false;
 	}
 
-	public function login($email, $password)
+	public function login($username, $password)
 	{
 		// Ambil data dari database
 		$q = $this
 				->db
-				->where('email_address', $email)
+				->where('username', $username)
 				->where('password', sha1($password))
 				->limit(1)
 				->get('users');
@@ -51,7 +51,7 @@ class Auth_model extends CI_Model {
 		$this->db->insert('users', $user);
 
 		// Cek jika data berhasil dimasukkan
-		if($this->check_user($user['email_address'])) return true;
+		if($this->check_user($user['username'])!==false) return true;
 		return false;
 	}
 

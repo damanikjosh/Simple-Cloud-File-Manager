@@ -6,8 +6,8 @@
 	<div class="login-form">
 	<?php echo form_open('auth/login', array('class'=>'form-inline')); ?>
 	<div class="form-group">
-		<label class="sr-only" for="email_address">Email address</label>
-		<input type="text" name="email_address" class="form-control" placeholder="Email Address" value="<?= set_value('email_address') ?>" rel="tooltip-manual-bottom" title="<?= form_error('email_address', ' ', ' '); ?>" />
+		<label class="sr-only" for="username">Username</label>
+		<input type="text" name="username" class="form-control" placeholder="Username" value="<?= set_value('username') ?>" rel="tooltip-manual-bottom" title="<?= form_error('username', ' ', ' '); ?>" />
 	</div>
 	<div class="form-group">
 		<label class="sr-only" for="password">Password</label>

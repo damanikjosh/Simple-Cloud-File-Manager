@@ -21,24 +21,23 @@ class Auth extends CI_Controller {
 
 		// Validasi form login
 		$this->load->library('form_validation');
-		$this->form_validation->set_rules('email_address', 'Email Address','required|valid_email');
+		$this->form_validation->set_rules('username', 'Username','required');
 		$this->form_validation->set_rules('password', 'Password', 'required');
 		$this->form_validation->set_message('required', 'Required');
-		$this->form_validation->set_message('valid_email', 'Not a Valid Email');
 
 		// Jika validasi berhasil
 		if($this->form_validation->run())
 		{
 			// Ambil data dari model
 			$this->load->model('Auth_model');
-			$email = $this->input->post('email_address');
+			$username = $this->input->post('username');
 			$password = $this->input->post('password');
-			$user = $this->Auth_model->login($email, $password);
+			$user = $this->Auth_model->login($username, $password);
 
 			// Jika gagal log in
 			if(!$user)
 			{
-				$data['error'] = 'Wrong email address or password.';
+				$data['error'] = 'Wrong username or password.';
 				$this->load->view('auth/header', array('title'=>'Log In | SimpleCloud'));
 				$this->load->view('auth/login', $data);
 				$this->load->view('auth/footer');
@@ -50,7 +49,7 @@ class Auth extends CI_Controller {
 				// Set php session
 				$user_sess = array(
 					'user_id' => $user->id,
-					'email' => $user->email_address,
+					'username' => $user->username,
 					'is_admin' => $user->is_admin
 				);
 				$this->session->set_userdata($user_sess);
@@ -75,9 +74,7 @@ class Auth extends CI_Controller {
 
 		// Validasi form registrasi
 		$this->load->library('form_validation');
-		$this->form_validation->set_rules('email_address', 'Email Address','required|valid_email|is_unique[users.email_address]');
-		$this->form_validation->set_rules('first_name', 'First Name', 'required');
-		$this->form_validation->set_rules('last_name', 'Last Name', 'required');
+		$this->form_validation->set_rules('username', 'Username','required|is_unique[users.username]');
 		$this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
 
 		// Jika validasi berhasil
@@ -86,13 +83,15 @@ class Auth extends CI_Controller {
 			// Ambil data dari model
 			$this->load->model('Auth_model');
 			$user = array(
-				'email_address' => $this->input->post('email_address'),
-				'first_name' => $this->input->post('first_name'),
-				'last_name' => $this->input->post('last_name'),
+				'username' => $this->input->post('username'),
 				'password' => $this->input->post('password'),
 			);
 			// Jika berhasil register, redirect ke halaman login
-			if($this->Auth_model->register($user)) redirect('auth/login');
+			if($this->Auth_model->register($user)){
+				$this->load->model('Cloud_model');
+				$this->Cloud_model->create_folder('', '', $this->Auth_model->check_user($user['username']));
+				redirect('auth/login');
+			}
 
 			// Jika tidak berhasil register
 			else $this->load->view('auth/register', array('error' => 'Error creating user'));
