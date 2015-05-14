@@ -91,6 +91,20 @@ class Cloud_model extends CI_Model {
 		else return 'Other';
 	}
 
+	private function _rrmdir($dir) {
+		if (is_dir($dir)) {
+			$objects = scandir($dir);
+			foreach ($objects as $object) {
+				if ($object != "." && $object != "..") {
+					if (filetype($dir."/".$object) == "dir") $this->_rrmdir($dir."/".$object); else unlink($dir."/".$object);
+				}
+			}
+			reset($objects);
+			rmdir($dir);
+			return true;
+		}
+	}
+
 	public function get_contents($owner_id, $path_segments, $sort, $sort_asc)
 	{
 		$path = $this->get_path(1, $path_segments);
@@ -167,6 +181,36 @@ class Cloud_model extends CI_Model {
 		$new_folder = $directory . $folder_name;
 		if(!is_dir($new_folder)){
 			if(mkdir($new_folder, 0755, TRUE)) return true;
+		}
+		return false;
+	}
+
+	public function delete_folder($owner_id, $path_segments){
+		$this->load->helper('path');
+		$path = $this->get_path(1, $path_segments);
+		$real_path = $this->get_path(0, $path_segments);
+
+		$directory = set_realpath('../cloud/' . $owner_id . $real_path);
+		if(!is_dir($directory)){
+			return NOT_EXIST;
+		}
+		else {
+			if($this->_rrmdir($directory)) return true;
+		}
+		return false;
+	}
+
+	public function delete_file($owner_id, $path_segments){
+		$this->load->helper('path');
+		$path = $this->get_path(1, $path_segments);
+		$real_path = $this->get_path(0, $path_segments);
+
+		$file = set_realpath('../cloud/' . $owner_id . $real_path);
+		if(!is_file($file)){
+			return NOT_EXIST;
+		}
+		else {
+			if(unlink($file)) return true;
 		}
 		return false;
 	}

@@ -36,8 +36,23 @@ class Cloud extends CI_Controller {
 		$url_segments = $this->uri->segments;
 		unset($url_segments[1], $url_segments[2]);
 
+		$delete = $this->input->get('delete');
 		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'name';
 		$sort_asc = isset($_GET['asc']) ? $_GET['asc'] : 1;
+
+		if($delete==1&&$this->Cloud_model->delete_folder($user_id, $url_segments)){
+			$len = count($url_segments);
+			$i = 0;
+			foreach($url_segments as $key=>$segment){
+				if($i==$len-1){
+					$delete_name = base64_decode($segment);
+					unset($url_segments[$key]);
+				}
+				$i++;
+			}
+			$path = $this->Cloud_model->get_path(1, $url_segments);
+			redirect('cloud/folder'.$path.'?delete_success=1&delete_name='.$delete_name);
+		}
 
 		// Ambil data dari model
 		$contents = $this->Cloud_model->get_contents($user_id, $url_segments, $sort, $sort_asc);
@@ -110,6 +125,30 @@ class Cloud extends CI_Controller {
 
 		if($this->Cloud_model->create_folder($user_id, $url_segments, $folder_name))
 			redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments).'?create_success=1&create_name='.$folder_name);;
+	}
+
+	public function file()
+	{
+		$this->load->helper('form');
+		$user_id = $this->session->userdata('user_id');
+		$url_segments = $this->uri->segments;
+		unset($url_segments[1], $url_segments[2]);
+
+		$delete = $this->input->get('delete');
+
+		if($delete==1&&$this->Cloud_model->delete_file($user_id, $url_segments)){
+			$len = count($url_segments);
+			$i = 0;
+			foreach($url_segments as $key=>$segment){
+				if($i==$len-1){
+					$delete_name = base64_decode($segment);
+					unset($url_segments[$key]);
+				}
+				$i++;
+			}
+			$path = $this->Cloud_model->get_path(1, $url_segments);
+			redirect('cloud/folder'.$path.'?delete_success=1&delete_name='.$delete_name);
+		}
 	}
 
 }

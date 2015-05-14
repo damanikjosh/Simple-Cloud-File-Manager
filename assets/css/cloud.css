@@ -68,6 +68,9 @@
 	position: relative;
 	left: -35px;
 }
+.column-actions {
+	width: 30px;
+}
 .folder-content .glyphicon {
 	font-size: 20px;
 }
@@ -81,6 +84,16 @@
 }
 .content-name {
 	overflow: hidden;
+}
+.content-actions a {
+	padding: 0;
+}
+.folder-content:hover .content-actions a {
+	display: block !important;
+}
+.content-actions .glyphicon {
+	font-size: 15px;
+	color: #D9534F;
 }
 .folder-header th {
 	color: #37474f;

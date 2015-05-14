@@ -61,4 +61,10 @@
 		<span><b>Success</b></span><span> <?= $this->input->get('create_name') ?> created</span>
 	</div>
 	<?php endif ?>
+	<?php if($this->input->get('delete_success')): ?>
+	<div class="alert alert-success alert-fixed-top alert-dismissable" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<span><b>Success</b></span><span> <?= $this->input->get('delete_name') ?> deleted</span>
+	</div>
+	<?php endif ?>
 </div>
