@@ -51,8 +51,8 @@ SQL script untuk tabel `ci_sessions`:
   - [X] Sort by
   - [ ] Personalize
 - [ ] **ADMIN FEATURES**
-  - [ ] Upload
-  - [ ] User management
+  - [X] Upload
+  - [X] User management
   - [ ] Configure
   - [ ] Logs
 - [ ] **BONUS**
