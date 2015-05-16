@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Cloud extends CI_Controller {
-
+	private $cloud;
 	public function __construct()
 	{
 		parent::__construct();
@@ -10,7 +10,15 @@ class Cloud extends CI_Controller {
 		// User harus login untuk mengakses cloud
 		if($this->session->userdata('user_id') == NULL) redirect('auth');
 		$this->load->model('Cloud_model');
+		$config_file = fopen(APPPATH . 'config/cloud/config', "r+");
+		$this->cloud = unserialize(fgets($config_file));
+		fclose($config_file);
 	}
+
+	function alpha_numeric_dash_space($str)
+	{
+		return ( ! preg_match("/^([-a-z0-9_ ])+$/i", $str)) ? FALSE : TRUE;
+	} 
 
 	private function _breadcrumbs($path_segments) {
 		$url = '';
@@ -41,15 +49,7 @@ class Cloud extends CI_Controller {
 		$sort_asc = isset($_GET['asc']) ? $_GET['asc'] : 1;
 
 		if($delete==1&&$this->Cloud_model->delete_folder($user_id, $url_segments)){
-			$len = count($url_segments);
-			$i = 0;
-			foreach($url_segments as $key=>$segment){
-				if($i==$len-1){
-					$delete_name = base64_decode($segment);
-					unset($url_segments[$key]);
-				}
-				$i++;
-			}
+			$delete_name = base64_decode(array_pop($url_segments));
 			$path = $this->Cloud_model->get_path(1, $url_segments);
 			redirect('cloud/folder'.$path.'?delete_success=1&delete_name='.$delete_name);
 		}
@@ -66,9 +66,9 @@ class Cloud extends CI_Controller {
 			'sort' => $sort,
 			'asc' => $sort_asc
 		);
-		$this->load->view('cloud/header', array('title'=>'Simple Cloud'));
+		$this->load->view('main/header', array('title'=>'SimpleCloud'));
 		$this->load->view('cloud/folder', $data);
-		$this->load->view('cloud/footer');
+		$this->load->view('main/footer');
 	}
 
 	public function upload()
@@ -78,17 +78,12 @@ class Cloud extends CI_Controller {
 		$url_segments = $this->uri->segments;
 		unset($url_segments[1], $url_segments[2]);
 
-		$config['upload_path']		= set_realpath($_SERVER['DOCUMENT_ROOT'] . '/../cloud/' . $user_id . $this->Cloud_model->get_path(0, $url_segments));
-		$config['allowed_types']	= '*';
-		$config['overwrite']		= TRUE;
-		$config['max_size']			= 3000;
-		$config['remove_spaces']	= FALSE;
-
 		$error = '';
 
 		if(isset($_FILES['userfile'])){
-			if($this->input->post('filename') !== '') $config['file_name'] = $this->input->post('filename');
-			$this->load->library('upload', $config);
+			$this->cloud['upload_path'] .= $user_id . $this->Cloud_model->get_path(0, $url_segments);
+			if($this->input->post('filename') !== '') $this->cloud['file_name'] = $this->input->post('filename');
+			$this->load->library('upload', $this->cloud);
 
 			$file_data = $this->upload->data();
 			$upload_success = $this->upload->do_upload();
@@ -108,23 +103,49 @@ class Cloud extends CI_Controller {
 		);
 		$data = array(
 			'path'=>$this->Cloud_model->get_path(1, $url_segments),
-			'max_size'=>$config['max_size'],
+			'max_size'=>$this->cloud['max_size'],
 			'breadcrumbs' => $this->_breadcrumbs($url_segments)
 		);
-		$this->load->view('cloud/header', $data_header);
+		$this->load->view('main/header', $data_header);
 		$this->load->view('cloud/upload', $data);
-		$this->load->view('cloud/footer');
+		$this->load->view('main/footer');
 	}
 
 	public function new_folder()
 	{
-		$user_id = $this->session->userdata('user_id');
-		$url_segments = $this->uri->segments;
-		$folder_name = $this->input->post('foldername');
-		unset($url_segments[1], $url_segments[2]);
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('foldername', 'New Folder','required|callback_alpha_numeric_dash_space');
+		if($this->form_validation->run()) {
+			$user_id = $this->session->userdata('user_id');
+			$url_segments = $this->uri->segments;
+			$folder_name = $this->input->post('foldername');
+			unset($url_segments[1], $url_segments[2]);
 
-		if($this->Cloud_model->create_folder($user_id, $url_segments, $folder_name))
-			redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments).'?create_success=1&create_name='.$folder_name);;
+			if($this->Cloud_model->create_folder($user_id, $url_segments, $folder_name))
+				redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments).'?create_success=1&create_name='.$folder_name);;
+		}
+		redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments));
+	}
+
+	public function download_file($path)
+	{
+		$path_segments = explode('/', $path);
+		$file = array_pop($path_segments);
+		if (file_exists($path)) {
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/octet-stream');
+			header('Content-Disposition: attachment; filename="'. $file . '"');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($path));
+			readfile($path);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public function file()
@@ -134,20 +155,22 @@ class Cloud extends CI_Controller {
 		$url_segments = $this->uri->segments;
 		unset($url_segments[1], $url_segments[2]);
 
+		$path = $this->Cloud_model->get_path(1, $url_segments);
+		$real_path = $this->Cloud_model->get_path(0, $url_segments);
+
 		$delete = $this->input->get('delete');
 
 		if($delete==1&&$this->Cloud_model->delete_file($user_id, $url_segments)){
-			$len = count($url_segments);
-			$i = 0;
-			foreach($url_segments as $key=>$segment){
-				if($i==$len-1){
-					$delete_name = base64_decode($segment);
-					unset($url_segments[$key]);
-				}
-				$i++;
-			}
+			$delete_name = base64_decode(array_pop($url_segments));
 			$path = $this->Cloud_model->get_path(1, $url_segments);
 			redirect('cloud/folder'.$path.'?delete_success=1&delete_name='.$delete_name);
+		}
+
+		$download = $this->input->get('download');
+
+		if($download==1){
+			$file = $this->Cloud_model->get_file($user_id, $real_path);
+			$this->download_file($file);
 		}
 	}
 

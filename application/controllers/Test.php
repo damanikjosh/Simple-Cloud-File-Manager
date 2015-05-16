@@ -6,8 +6,11 @@ class Test extends CI_Controller {
 
 	public function index()
 	{
-		$this->load->helper('path');
-		echo set_realpath($_SERVER['DOCUMENT_ROOT'] . '/../cloud');
+		$this->load->helper(array('path'));
+		echo sha1('demo');
+		$this->config->load('cloud');
+		$config = $this->config->item('cloud');
+		print_r($config);
 	}
 
 }

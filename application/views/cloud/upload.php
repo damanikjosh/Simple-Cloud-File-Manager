@@ -1,4 +1,7 @@
-<div class="container-fluid">
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
+<div class="container-fluid navbar-offset">
 	<ol class="breadcrumb">
 		<li>
 			<a href="<?= site_url('cloud/folder') ?>" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-home"></span></a>
@@ -26,20 +29,21 @@
 	</div>
 </div>
 <div class="col-sm-6 col-sm-offset-3">
-<div class="panel panel-default">
-  <div class="panel-body">
-		<?php echo form_open_multipart($this->uri->uri_string());?>
-		<div class="form-group">
-			<label for="filename">File Name</label>
-			<input type="text" class="form-control" id="filename" name="filename" placeholder="File.ext" />
-		</div>
-			<div class="btn btn-default btn-primary btn-file">
-				Browse <input type="file" name="userfile" id="file" />
+	<div class="panel panel-default">
+	  <div class="panel-body">
+			<?php echo form_open_multipart($this->uri->uri_string());?>
+			<div class="form-group">
+				<label for="filename">File Name</label>
+				<input type="text" class="form-control" id="filename" name="filename" placeholder="File.ext" />
+				<small><i>Max. File Size <?= $max_size ?> KB</i></small>
 			</div>
-		<button type="submit" id="upload-btn" class="btn btn-success btn-bg" disabled="disabled">Upload</button>
-		</form>
+				<div class="btn btn-default btn-primary btn-file">
+					Browse <input type="file" name="userfile" id="file" />
+				</div>
+			<button type="submit" id="upload-btn" class="btn btn-success btn-bg" disabled="disabled">Upload</button>
+			</form>
+		</div>
 	</div>
-</div>
 </div>
 <script type="text/javascript">
 document.forms[0].addEventListener('submit', function( evt ) {

@@ -38,9 +38,9 @@ class Auth extends CI_Controller {
 			if(!$user)
 			{
 				$data['error'] = 'Wrong username or password.';
-				$this->load->view('auth/header', array('title'=>'Log In | SimpleCloud'));
+				$this->load->view('landing/header', array('title'=>'SimpleCloud | Log In'));
 				$this->load->view('auth/login', $data);
-				$this->load->view('auth/footer');
+				$this->load->view('landing/footer');
 			}
 
 			// Jika berhasil
@@ -61,9 +61,9 @@ class Auth extends CI_Controller {
 		// Jika validasi gagal
 		else
 		{
-			$this->load->view('auth/header', array('title'=>'Log In | SimpleCloud'));
+			$this->load->view('landing/header', array('title'=>'SimpleCloud | Log In'));
 			$this->load->view('auth/login');
-			$this->load->view('auth/footer');
+			$this->load->view('landing/footer');
 		}
 	}
 
@@ -103,6 +103,44 @@ class Auth extends CI_Controller {
 			$this->load->view('auth/register');
 		}
 
+	}
+
+	public function profile()
+	{
+		$user_id = $this->session->userdata('user_id');
+		$username = $this->session->userdata('username');
+		if($this->input->get('edit')){
+			$this->load->model('Auth_model');
+			$this->load->library('form_validation');
+			if($this->input->post('modify')=='username'){
+				$this->form_validation->set_rules('username', 'Username','required|alpha_numeric|is_unique[users.username]');
+				if($this->form_validation->run()){
+					$modify_username = $this->input->post('username');
+					if($this->Auth_model->update_user($user_id, 'username', $modify_username)){
+						$this->session->set_userdata('username', $modify_username);
+						redirect('auth/profile' . '?modify_success=1&old_name='.$username.'&new_name='.$modify_username);
+					}
+				}
+				redirect('admin/users/'.$user_id);
+			}
+			else if($this->input->post('modify')=='password'){
+				$this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
+				if($this->form_validation->run()){
+					$old_password = $this->input->post('old-password');
+					$modify_password = $this->input->post('password');
+
+					if($this->Auth_model->change_password($user_id, sha1($old_password), sha1($modify_password)))
+						redirect('auth/profile' . '?password_success=1&username='.$username);
+				}
+			}
+		}
+		$header_data = array('title' => 'SimpleCloud | Edit Profile');
+		$this->load->view('main/header', $header_data);
+
+		$data =  array('id' => $user_id, 'username' => $username);
+		$this->load->view('auth/profile', $data);
+
+		$this->load->view('main/footer');
 	}
 
 	public function logout()

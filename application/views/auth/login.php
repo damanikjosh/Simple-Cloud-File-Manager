@@ -1,3 +1,6 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
 	<div class="cloud">
 		<div class="cloud-logo">
 			<span class="glyphicon glyphicon-cloud"></span><p class="logo-text"><a href="/"><b>Simple</b>Cloud</p></a>
@@ -7,11 +10,11 @@
 	<?php echo form_open('auth/login', array('class'=>'form-inline')); ?>
 	<div class="form-group">
 		<label class="sr-only" for="username">Username</label>
-		<input type="text" name="username" class="form-control" placeholder="Username" value="<?= set_value('username') ?>" rel="tooltip-manual-bottom" title="<?= form_error('username', ' ', ' '); ?>" />
+		<input type="text" name="username" class="form-control" placeholder="Username" value="<?= set_value('username') ?><?= $this->input->get('username') ?>" rel="tooltip-manual-bottom" title="<?= form_error('username', ' ', ' '); ?>" />
 	</div>
 	<div class="form-group">
 		<label class="sr-only" for="password">Password</label>
-		<input type="password" name="password" class="form-control" placeholder="Password" rel="tooltip-manual-bottom" title="<?= form_error('password', ' ', ' '); ?>" />
+		<input type="password" name="password" class="form-control" placeholder="Password" value="<?= $this->input->get('password') ?>" rel="tooltip-manual-bottom" title="<?= form_error('password', ' ', ' '); ?>" />
 	</div>
 	<button type="submit" class="btn btn-success">Log In</button>
 	<?php echo form_close(); ?>

@@ -1,4 +1,7 @@
-<div class="container-fluid">
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
+<div class="container-fluid navbar-offset">
 	<ol class="breadcrumb">
 		<li>
 			<a href="<?= site_url('cloud/folder') ?>" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-home"></span></a>
@@ -65,7 +68,7 @@
 				<td class="content-icon"><span class="glyphicon glyphicon-folder-open"></span></td>
 				<td nowrap class="content-name"><a href="<?= $folder['url'] ?>"><?= $folder['name'] ?></a></td>
 				<td class="content-actions">
-					<a href="javascript:void(0)" data-name="<?= $folder['name'] ?>" data-url="<?= $folder['url'].'?delete=1' ?>" class="btn visible-xs"rel="tooltip-left" title="Delete" data-toggle="modal" data-target="#delete-modal"><span class="glyphicon glyphicon-trash"></span></a>
+					<a href="javascript:void(0)" data-name="<?= $folder['name'] ?>" data-url="<?= $folder['url'].'?delete=1' ?>" class="btn visible-xs-inline" rel="tooltip-left" title="Delete" data-toggle="modal" data-target="#delete-modal"><span class="glyphicon glyphicon-trash"></span></a>
 				</td>
 				<td class="content-size"><?= $folder['size'] ?></td>
 				<td class="content-date hidden-xs"><?= $folder['date'] ?></td>
@@ -88,7 +91,8 @@
 				</td>
 				<td nowrap class="content-name"><?= $file['name'] ?></td>
 				<td class="content-actions">
-					<a href="javascript:void(0)" data-name="<?= $file['name'] ?>" data-url="<?= $file['url'].'?delete=1' ?>" class="btn visible-xs"rel="tooltip-left" title="Delete" data-toggle="modal" data-target="#delete-modal"><span class="glyphicon glyphicon-trash"></span></a>
+					<a href="<?= $file['url'].'?download=1' ?>" class="btn visible-xs-inline" rel="tooltip-left" title="Download"><span class="glyphicon glyphicon-download-alt"></span></a>
+					<a href="javascript:void(0)" data-name="<?= $file['name'] ?>" data-url="<?= $file['url'].'?delete=1' ?>" class="btn visible-xs-inline" rel="tooltip-left" title="Delete" data-toggle="modal" data-target="#delete-modal"><span class="glyphicon glyphicon-trash"></span></a>
 				</td>
 				<td class="content-size"><?= $file['size'] ?></td>
 				<td class="content-date hidden-xs"><?= $file['date'] ?></td>

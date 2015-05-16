@@ -46,22 +46,33 @@
 	top: -3px;
 }
 
+.navbar-offset {
+	margin-top: 61px;
+}
+
 .breadcrumb li a { color: #37474f;}
 .folder-content:focus {
 	background: #000;
 }
 .breadcrumb button {
 }
-#table-contents {
+.page-header {
+	margin-top: 0 !important;
+}
+#table-contents,
+#table-user-list {
 	table-layout:fixed;
 	width:100%;
 }
-.folder-content td {
+.folder-content td,
+.user-content td,
+.user-add td {
 	height: 50px;
 	vertical-align: middle !important;
 }
 .column-icon {
 	width: 35px;
+	max-width: 35px;
 }
 .column-name {
 	min-width: 150px;
@@ -69,40 +80,84 @@
 	left: -35px;
 }
 .column-actions {
-	width: 30px;
+	width: 65px;
+	max-width: 65px;
 }
-.folder-content .glyphicon {
+.folder-content .glyphicon,
+.user-content .glyphicon {
 	font-size: 20px;
 }
 .column-size {
 	width: 80px;
 	min-width: 80px;
 }
-.column-date {
+.column-date,
+.column-date-created {
 	width: 120px;
 	min-width: 120px;
 }
-.content-name {
+.column-id {
+	width: 50px;
+	max-width: 50px;
+}
+.column-admin {
+	width: 80px;
+	max-width: 80px;
+	overflow: none;
+}
+.content-name,
+.content-username {
 	overflow: hidden;
+}
+.content-actions {
+	text-align: right;
 }
 .content-actions a {
 	padding: 0;
+	display: inline;
+	margin-left: 5px;
 }
-.folder-content:hover .content-actions a {
-	display: block !important;
+.content-admin .glyphicon {
+	font-size: 15px;
+}
+.content-admin a {
+	padding: 0;
+	display: inline;
+	margin-left: 5px;
+}
+.user-content:hover .content-admin a {
+	display: inline !important;
+}
+.content-admin .glyphicon-arrow-down {
+	color: #c9302c !important;
+}
+.content-admin .glyphicon-arrow-up {
+	color: #449d44 !important;
+}
+.folder-content:hover .content-actions a,
+.user-content:hover .content-actions a {
+	display: inline !important;
 }
 .content-actions .glyphicon {
 	font-size: 15px;
-	color: #37474f;
 }
-.folder-header th {
+.content-actions .glyphicon-trash {
+	color: #c9302c;
+}
+.content-actions .glyphicon-download-alt {
+	color: #286090;
+}
+.folder-header th,
+.user-header {
 	color: #37474f;
 	font-size: 17px;
 }
-.folder-header a {
+.folder-header a,
+.user-header a {
 	color: #37474f;
 }
-.folder-header .glyphicon {
+.folder-header .glyphicon,
+.user-header .glyphicon {
 	font-size: 10px;
 }
 .alert {
@@ -141,15 +196,59 @@
 #add-folder-form {
 	display: none;
 }
+.sidebar {
+	padding: 10px 0;
+}
+.sidebar-title {
+	margin: 0 20px;
+}
+.panel-multiple .panel {
+	margin: 0 10px;
+}
+.tab-pane {
+	padding: 20px;
+}
+
 
 @media screen and (max-width: 768px) {
 	.visible-xs-inline {
-		display: inline-block; !important
+		display: inline !important;
+	}
+	.sidebar {
+		margin-top: 61px;
+	}
+	.sidebar-nav {
+		text-align: center;
 	}
 }
 
 @media screen and (min-width: 768px) {
 	.visible-xs-inline {
-		display: none; !important
+		display: none !important;
+	}
+	.sidebar {
+		position:fixed;
+		background-color: #f5f5f5;
+		top: 51px;
+		left: 0;
+		height: 100%;
+		width: 200px;
+	}
+	.content {
+		margin-left: 200px;
+		margin-top: 61px;
+	}
+	.sidebar-nav .btn-group {
+		width: 100%;
+	}
+	.sidebar-nav a {
+		display: block;
+		background: none;
+		border-radius: 0;
+		width: 100%;
+		border: none;
+		text-align: left;
+		font-size: 15px;
+		padding: 12px 20px;
 	}
 }

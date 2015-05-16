@@ -2,13 +2,16 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Cloud_model extends CI_Model {
-
+	private $cloud;
 	public function __construct()
 	{
 		parent::__construct();
 
 		// Menjalankan helper file dari codeigniter
 		$this->load->helper(array('file'));
+		$config_file = fopen(APPPATH . 'config/cloud/config', "r+");
+		$this->cloud = unserialize(fgets($config_file));
+		fclose($config_file);
 	}
 
 	private function _encode($str) {
@@ -111,7 +114,7 @@ class Cloud_model extends CI_Model {
 		$real_path = $this->get_path(0, $path_segments);
 
 		// Menentukan directory yang akan discan
-		$directory = FCPATH . '/../cloud/' . $owner_id . $real_path;
+		$directory = $this->cloud['upload_path'] . $owner_id . $real_path;
 		if(!is_dir($directory)) return NOT_EXIST;
 
 		// Men-scan file dan folder yang ada di directory
@@ -171,14 +174,22 @@ class Cloud_model extends CI_Model {
 		return ($encoded ? $path : $real_path);
 	}
 
+	public function get_file($owner_id, $real_path)
+	{
+		$this->load->helper('path');
+		$directory = $this->cloud['upload_path'] . $owner_id . $real_path;
+		return set_realpath($directory);
+	}
+
 	public function create_folder($owner_id, $path_segments, $folder_name){
 		$this->load->helper('path');
 		$path = $this->get_path(1, $path_segments);
 		$real_path = $this->get_path(0, $path_segments);
 
-		$directory = set_realpath('../cloud/' . $owner_id . $real_path);
+		$directory = $this->cloud['upload_path'] . $owner_id . $real_path;
 		if(!is_dir($directory)) return NOT_EXIST;
-		$new_folder = $directory . $folder_name;
+		$new_folder = $directory . '/' . $folder_name;
+		echo $new_folder;
 		if(!is_dir($new_folder)){
 			if(mkdir($new_folder, 0755, TRUE)) return true;
 		}
@@ -190,7 +201,7 @@ class Cloud_model extends CI_Model {
 		$path = $this->get_path(1, $path_segments);
 		$real_path = $this->get_path(0, $path_segments);
 
-		$directory = set_realpath('../cloud/' . $owner_id . $real_path);
+		$directory = $this->cloud['upload_path'] . $owner_id . $real_path;
 		if(!is_dir($directory)){
 			return NOT_EXIST;
 		}
@@ -205,7 +216,7 @@ class Cloud_model extends CI_Model {
 		$path = $this->get_path(1, $path_segments);
 		$real_path = $this->get_path(0, $path_segments);
 
-		$file = set_realpath('../cloud/' . $owner_id . $real_path);
+		$file = $this->cloud['upload_path'] . $owner_id . $real_path;
 		if(!is_file($file)){
 			return NOT_EXIST;
 		}

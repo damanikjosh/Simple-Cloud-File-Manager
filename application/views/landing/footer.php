@@ -1,3 +1,6 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
 	<script src="/assets/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function(){
