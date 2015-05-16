@@ -100,6 +100,18 @@
 	width: 50px;
 	max-width: 50px;
 }
+.column-type {
+	width: 80px;
+	max-width: 80px;
+}
+.column-action {
+	width: 120px;
+	max-width: 120px;
+}
+.column-time {
+	width: 150px;
+	max-width: 150px;
+}
 .column-admin {
 	width: 80px;
 	max-width: 80px;
@@ -148,16 +160,19 @@
 	color: #286090;
 }
 .folder-header th,
-.user-header {
+.user-header th,
+.logs-header th {
 	color: #37474f;
 	font-size: 17px;
 }
 .folder-header a,
-.user-header a {
+.user-header a,
+.logs-header a {
 	color: #37474f;
 }
 .folder-header .glyphicon,
-.user-header .glyphicon {
+.user-header .glyphicon,
+.logs-header .glyphicon {
 	font-size: 10px;
 }
 .alert {

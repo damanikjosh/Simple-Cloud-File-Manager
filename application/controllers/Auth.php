@@ -7,6 +7,7 @@ class Auth extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->helper('form');
+		$this->load->model('Log_model');
 	}
 
 	public function index()
@@ -53,6 +54,7 @@ class Auth extends CI_Controller {
 					'is_admin' => $user->is_admin
 				);
 				$this->session->set_userdata($user_sess);
+				$this->Log_model->add_log($user->id, 'auth', 'login', $user->username);
 
 				redirect('cloud');
 			}
@@ -118,6 +120,7 @@ class Auth extends CI_Controller {
 					$modify_username = $this->input->post('username');
 					if($this->Auth_model->update_user($user_id, 'username', $modify_username)){
 						$this->session->set_userdata('username', $modify_username);
+						$this->Log_model->add_log($user_id, 'auth', 'edit username', $user_id.'('.$username.'=>'.$modify_username.')');
 						redirect('auth/profile' . '?modify_success=1&old_name='.$username.'&new_name='.$modify_username);
 					}
 				}
@@ -129,8 +132,10 @@ class Auth extends CI_Controller {
 					$old_password = $this->input->post('old-password');
 					$modify_password = $this->input->post('password');
 
-					if($this->Auth_model->change_password($user_id, sha1($old_password), sha1($modify_password)))
+					if($this->Auth_model->change_password($user_id, sha1($old_password), sha1($modify_password))){
+						$this->Log_model->add_log($user_id, 'auth', 'edit password', $user_id.'('.$username.')');
 						redirect('auth/profile' . '?password_success=1&username='.$username);
+					}
 				}
 			}
 		}
@@ -146,6 +151,9 @@ class Auth extends CI_Controller {
 	public function logout()
 	{
 		// Destroy php session
+		$user_id = $this->session->userdata('user_id');
+		$username = $this->session->userdata('username');
+		$this->Log_model->add_log($user_id, 'auth', 'logout', $user_id.'('.$username.')');
 		$this->session->sess_destroy();
 
 		redirect('auth/login');

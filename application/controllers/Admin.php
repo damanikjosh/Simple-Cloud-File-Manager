@@ -8,6 +8,7 @@ class Admin extends CI_Controller {
 		parent::__construct();
 		if($this->session->userdata('user_id') == NULL) redirect('auth');
 		else if($this->session->userdata('is_admin')!=1) redirect('');
+		$this->load->model('Log_model');
 	}
 
 	private function _date_modified($time){
@@ -44,12 +45,13 @@ class Admin extends CI_Controller {
 		redirect('admin/users');
 	}
 
-	public function user($user_id = null)
+	public function user($e_user_id = null)
 	{
-		if($user_id==null){
+		$user_id = $this->session->userdata('user_id');
+		if($e_user_id==null){
 			redirect('admin/users');
 		}
-		elseif($user_id=='add'){
+		elseif($e_user_id=='add'){
 			$this->load->model('Auth_model');
 			$this->load->library('form_validation');
 			$this->form_validation->set_rules('username', 'Username','required|alpha_numeric|is_unique[users.username]');
@@ -61,14 +63,16 @@ class Admin extends CI_Controller {
 			// Ambil data dari model
 			$this->load->model('Auth_model');
 			$user = array(
-			'username' => $this->input->post('username'),
-			'password' => $this->input->post('password'),
+				'username' => $this->input->post('username'),
+				'password' => $this->input->post('password'),
 			);
 			// Jika berhasil register, redirect ke halaman login
 			if($this->Auth_model->register($user)){
-			$this->load->model('Cloud_model');
-			$this->Cloud_model->create_folder('', '', $this->Auth_model->check_user($user['username']));
-			redirect('admin/users');
+				$created_user_id = $this->Auth_model->check_user($user['username']);
+				$this->Log_model->add_log($user_id, 'auth', 'add user', $created_user_id.'('.$user['username'].')');
+				$this->load->model('Cloud_model');
+				$this->Cloud_model->create_folder('', '', $this->Auth_model->check_user($user['username']));
+				redirect('admin/users');
 			}
 
 			// Jika tidak berhasil register
@@ -84,10 +88,11 @@ class Admin extends CI_Controller {
 		else {
 			$this->load->model('Auth_model');
 			$this->load->library('form_validation');
-			$username = $this->Auth_model->get_username($user_id);
+			$username = $this->Auth_model->get_username($e_user_id);
 			if($this->input->get('delete')){
-				$delete_username = $this->Auth_model->get_username($user_id);
-				$this->Auth_model->delete_user($user_id);
+				$delete_username = $this->Auth_model->get_username($e_user_id);
+				$this->Auth_model->delete_user($e_user_id);
+				$this->Log_model->add_log($user_id, 'auth', 'delete', $e_user_id.'('.$username.')');
 				redirect('admin/users' . '?delete_success=1&delete_name=' . $delete_username);
 			}
 			if($this->input->get('edit')){
@@ -95,27 +100,35 @@ class Admin extends CI_Controller {
 					$this->form_validation->set_rules('username', 'Username','required|alpha_numeric|is_unique[users.username]');
 					if($this->form_validation->run()){
 						$modify_username = $this->input->post('username');
-						if($this->Auth_model->update_user($user_id, 'username', $modify_username))
+						if($this->Auth_model->update_user($e_user_id, 'username', $modify_username)){
+							$this->Log_model->add_log($user_id, 'auth', 'edit username', $e_user_id.'('.$username.'=>'.$modify_username.')');
 							redirect('admin/users' . '?modify_success=1&old_name='.$username.'&new_name='.$modify_username);
+						}
 					}
-					redirect('admin/users/'.$user_id);
+					redirect('admin/users/'.$e_user_id);
 				}
 				else if($this->input->post('modify')=='password'){
 					$this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
 					if($this->form_validation->run()){
 						$modify_password = $this->input->post('password');
-						if($this->Auth_model->update_user($user_id, 'password', sha1($modify_password)));
+						if($this->Auth_model->update_user($e_user_id, 'password', sha1($modify_password))){
+							$this->Log_model->add_log($user_id, 'auth', 'edit password', $e_user_id.'('.$username.')');
 							redirect('admin/users' . '?password_success=1&username='.$username);
+						}
 					}
 				}
 			}
 			if($this->input->get('promote')){
-				if($this->Auth_model->update_user($user_id, 'is_admin', 1))
+				if($this->Auth_model->update_user($e_user_id, 'is_admin', 1)){
+					$this->Log_model->add_log($user_id, 'auth', 'promote', $e_user_id.'('.$username.')');
 					redirect('admin/users' . '?promote_success=1&username='.$username);
+				}
 			}
-			if($this->input->get('demote')&&$this->session->userdata('user_id')!=$user_id){
-				if($this->Auth_model->update_user($user_id, 'is_admin', 0))
+			if($this->input->get('demote')&&$user_id!=$e_user_id){
+				if($this->Auth_model->update_user($e_user_id, 'is_admin', 0)){
+					$this->Log_model->add_log($user_id, 'auth', 'demote', $e_user_id.'('.$username.')');
 					redirect('admin/users' . '?demote_success=1&username='.$username);
+				}
 			}
 
 			$header_data = array('title' => 'SimpleCloud | Edit '.$username);
@@ -123,7 +136,7 @@ class Admin extends CI_Controller {
 
 			$this->load->view('admin/sidebar');
 
-			$data =  array('id' => $user_id, 'username' => $username);
+			$data =  array('id' => $e_user_id, 'username' => $username);
 			$this->load->view('admin/edit-user', $data);
 
 			$this->load->view('main/footer');
@@ -154,6 +167,7 @@ class Admin extends CI_Controller {
 
 	public function settings()
 	{
+		$user_id=$this->session->userdata('user_id');
 		$config_file = fopen(APPPATH . 'config/cloud/config', "r+");
 		$cloud = unserialize(fgets($config_file));
 		fclose($config_file);
@@ -172,6 +186,7 @@ class Admin extends CI_Controller {
 				$config_file = fopen(APPPATH . 'config/cloud/config', "w");
 				fwrite($config_file, serialize($cloud));
 				fclose($config_file);
+				$this->Log_model->add_log($user_id, 'settings', 'modify', 'all');
 				redirect('admin/settings?settings_success=1');
 			}
 		}
@@ -183,6 +198,28 @@ class Admin extends CI_Controller {
 
 		$this->load->helper('form');
 		$this->load->view('admin/settings', $cloud);
+
+		$this->load->view('main/footer');
+	}
+
+	public function logs()
+	{
+		$s_id = isset($_GET['id'])?$_GET['id']:null;
+		$type = isset($_GET['type'])?$_GET['type']:null;
+		$sort = isset($_GET['sort'])?$_GET['sort']:'user_id';
+		$asc = isset($_GET['asc'])?$_GET['asc']:1;
+
+		$this->load->model('Log_model');
+		$logs = $this->Log_model->get_logs($s_id, $type, $sort, $asc?'asc':'desc');
+
+
+		$header_data = array('title' => 'SimpleCloud | Logs');
+		$this->load->view('main/header', $header_data);
+
+		$this->load->view('admin/sidebar');
+
+		$data = array('logs' => $logs, 'sort' => $sort, 'asc' => $asc);
+		$this->load->view('admin/logs', $data);
 
 		$this->load->view('main/footer');
 	}

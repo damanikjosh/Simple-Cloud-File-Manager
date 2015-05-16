@@ -10,6 +10,7 @@ class Cloud extends CI_Controller {
 		// User harus login untuk mengakses cloud
 		if($this->session->userdata('user_id') == NULL) redirect('auth');
 		$this->load->model('Cloud_model');
+		$this->load->model('Log_model');
 		$config_file = fopen(APPPATH . 'config/cloud/config', "r+");
 		$this->cloud = unserialize(fgets($config_file));
 		fclose($config_file);
@@ -51,6 +52,7 @@ class Cloud extends CI_Controller {
 		if($delete==1&&$this->Cloud_model->delete_folder($user_id, $url_segments)){
 			$delete_name = base64_decode(array_pop($url_segments));
 			$path = $this->Cloud_model->get_path(1, $url_segments);
+			$this->Log_model->add_log($user_id, 'cloud', 'delete folder', $this->Cloud_model->get_path(0, $url_segments).'/'.$delete_name);
 			redirect('cloud/folder'.$path.'?delete_success=1&delete_name='.$delete_name);
 		}
 
@@ -90,6 +92,7 @@ class Cloud extends CI_Controller {
 			if ($upload_success)
 			{
 				$file_data = $this->upload->data();
+				$this->Log_model->add_log($user_id, 'cloud', 'upload', $this->Cloud_model->get_path(0, $url_segments).'/'.$this->cloud['file_name']);
 				redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments).'?upload_success=1&upload_name='.$file_data['file_name']);
 			}
 			else
@@ -121,8 +124,10 @@ class Cloud extends CI_Controller {
 			$folder_name = $this->input->post('foldername');
 			unset($url_segments[1], $url_segments[2]);
 
-			if($this->Cloud_model->create_folder($user_id, $url_segments, $folder_name))
+			if($this->Cloud_model->create_folder($user_id, $url_segments, $folder_name)){
+				$this->Log_model->add_log($user_id, 'cloud', 'add folder', $this->Cloud_model->get_path(0, $url_segments).'/'.$folder_name);
 				redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments).'?create_success=1&create_name='.$folder_name);;
+			}
 		}
 		redirect('cloud/folder'.$this->Cloud_model->get_path(1, $url_segments));
 	}
@@ -163,6 +168,7 @@ class Cloud extends CI_Controller {
 		if($delete==1&&$this->Cloud_model->delete_file($user_id, $url_segments)){
 			$delete_name = base64_decode(array_pop($url_segments));
 			$path = $this->Cloud_model->get_path(1, $url_segments);
+			$this->Log_model->add_log($user_id, 'cloud', 'delete file', $real_path);
 			redirect('cloud/folder'.$path.'?delete_success=1&delete_name='.$delete_name);
 		}
 
@@ -171,6 +177,7 @@ class Cloud extends CI_Controller {
 		if($download==1){
 			$file = $this->Cloud_model->get_file($user_id, $real_path);
 			$this->download_file($file);
+			$this->Log_model->add_log($user_id, 'cloud', 'download', $real_path);
 		}
 	}
 
