@@ -45,15 +45,15 @@ SQL script untuk tabel `ci_sessions`:
 
 ## To Do List
 
-- [ ] **USER FEATURES**
+- [X] **USER FEATURES**
   - [X] Upload
   - [X] All extensions
   - [X] Sort by
-  - [ ] Personalize
+  - [X] Personalize
 - [ ] **ADMIN FEATURES**
   - [X] Upload
   - [X] User management
-  - [ ] Configure
+  - [X] Configure
   - [ ] Logs
 - [ ] **BONUS**
   - [ ] Edit on the spot
