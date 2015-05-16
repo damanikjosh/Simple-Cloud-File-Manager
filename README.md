@@ -1,4 +1,4 @@
-# Simple Cloud File Manager
+# Simple Cloud File Manager (BETA 1.0)
 
 Simple Cloud File Manager ini merupakan Tugas besar kelompok 1 calon kru ARC ITB divisi Web.
 Simple Cloud File Manager ini menggunakan PHP framework [Codeigniter](http://www.codeigniter.com) .
@@ -13,13 +13,12 @@ SQL script untuk tabel `users`:
 
     CREATE TABLE IF NOT EXISTS 'users' (
       'id' INT NOT NULL AUTO_INCREMENT,
-      'email_address' VARCHAR(50) NOT NULL,
+      'username' VARCHAR(20) NOT NULL,
       'password' VARCHAR(128) NOT NULL,
-      'first_name' VARCHAR(40) NOT NULL,
-      'last_name' VARCHAR(45) NOT NULL,
-      'created' TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      'date_created' TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       'is_admin' INT(1) NOT NULL DEFAULT 0,
-      PRIMARY KEY ('id')
+      PRIMARY KEY ('id'),
+      UNIQUE KEY 'username_UNIQUE' ('username')
     );
 
 SQL script untuk tabel `ci_sessions`:
@@ -31,6 +30,18 @@ SQL script untuk tabel `ci_sessions`:
       'data' blob NOT NULL,
       PRIMARY KEY (id),
       KEY 'ci_sessions_timestamp' ('timestamp')
+    );
+
+SQL script untuk tabel `track_record` :
+
+    CREATE TABLE IF NOT EXISTS 'track_record' (
+      'id' int(11) NOT NULL AUTO_INCREMENT,
+      'user_id' int(11) NOT NULL,
+      'type' varchar(45) NOT NULL,
+      'action' varchar(45) NOT NULL,
+      'content' varchar(128) DEFAULT NULL,
+      'time' TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY ('id')
     );
 
 ## Server Requirements
@@ -50,11 +61,11 @@ SQL script untuk tabel `ci_sessions`:
   - [X] All extensions
   - [X] Sort by
   - [X] Personalize
-- [ ] **ADMIN FEATURES**
+- [X] **ADMIN FEATURES**
   - [X] Upload
   - [X] User management
   - [X] Configure
-  - [ ] Logs
+  - [X] Logs
 - [ ] **BONUS**
   - [ ] Edit on the spot
   - [ ] File viewer
