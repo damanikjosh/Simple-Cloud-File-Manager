@@ -69,44 +69,6 @@ class Auth extends CI_Controller {
 		}
 	}
 
-	public function register()
-	{
-		// Jika user sudah login, redirect ke cloud
-		if($this->session->userdata('user_id') !== NULL) redirect('cloud');
-
-		// Validasi form registrasi
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('username', 'Username','required|is_unique[users.username]');
-		$this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
-
-		// Jika validasi berhasil
-		if($this->form_validation->run())
-		{
-			// Ambil data dari model
-			$this->load->model('Auth_model');
-			$user = array(
-				'username' => $this->input->post('username'),
-				'password' => $this->input->post('password'),
-			);
-			// Jika berhasil register, redirect ke halaman login
-			if($this->Auth_model->register($user)){
-				$this->load->model('Cloud_model');
-				$this->Cloud_model->create_folder('', '', $this->Auth_model->check_user($user['username']));
-				redirect('auth/login');
-			}
-
-			// Jika tidak berhasil register
-			else $this->load->view('auth/register', array('error' => 'Error creating user'));
-		}
-
-		// Jika validasi gagal
-		else
-		{
-			$this->load->view('auth/register');
-		}
-
-	}
-
 	public function profile()
 	{
 		$user_id = $this->session->userdata('user_id');

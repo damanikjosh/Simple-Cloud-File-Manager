@@ -83,7 +83,7 @@ class Cloud extends CI_Controller {
 		$error = '';
 
 		if(isset($_FILES['userfile'])){
-			$this->cloud['upload_path'] .= $user_id . $this->Cloud_model->get_path(0, $url_segments);
+			$this->cloud['upload_path'] .= '/' . $user_id . '/' . $this->Cloud_model->get_path(0, $url_segments);
 			if($this->input->post('filename') !== '') $this->cloud['file_name'] = $this->input->post('filename');
 			$this->load->library('upload', $this->cloud);
 
